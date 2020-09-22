@@ -1,85 +1,80 @@
-const express = require('express');
-const bodyParser = require('body-parser');
-const Partner = require('../models/partner');
+const express = require('express'); // using express middleware
+const bodyParser = require('body-parser'); // using body-parser middleware
+const Partner = require('../models/partner');  // using Partner model
 
 
-const partnerRouter = express.Router();
+const partnerRouter = express.Router(); 
 
-partnerRouter.use(bodyParser.json());
+partnerRouter.use(bodyParser.json()); // declaring that body-parser middleware is being used
 
-//www.campsites.com or //www.campsites/.com
-partnerRouter.route('/')
-.get((req, res, next) => {
-    // this will look into the db for campsites.
-    Partner.find()
-    // will always need a .then and .catch ( this is a promise)
-    // a promise will either return true or false if the data exists in the database.
-    //if the data exists, it will run line 17-21
-    // id the date does not exist, it will go to line 23.
-    .then(campsites => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(campsites);
+partnerRouter.route('/') 
+    .get((req, res, next) => { // get request which is getting any/all documents that are in the collection
+        Partner.find()
+        .then(partners => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(partners);
+        })
+        .catch(err => next(err)); 
     })
-    .catch(err => next(err));
-})
-.post((req, res, next) => {
-    Partner.create(req.body)
-    .then(partner => {
-        console.log('Partner Created ', partner);
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(partner);
+    .post((req, res, next) => { // creating a new document in the partner collection
+        Partner.create(req.body)
+        .then(partner => {
+            console.log('Partner Created ', partner);
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(partner);
+        })
+        .catch(err => next(err)); 
     })
-    .catch(err => next(err));
-})
-.put((req, res) => {
-    res.statusCode = 403;
-    res.end('PUT operation not supported on /campsites');
-})
-.delete((req, res, next) => {
-    Partner.deleteMany()
-    .then(response => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(response);
+    .put((req, res) => { // put request that is not supported
+        res.statusCode = 403;
+        res.end('PUT operation not supported on /partners');
     })
-    .catch(err => next(err));
-});
+    .delete((req, res, next) => { // delete request that is deleting any documents in the partner collection
+        Partner.deleteMany()
+        .then(response => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        })
+        .catch(err => next(err)); 
+    })
 
-partnerRouter.route('/:partnerId')
-.get((req, res, next) => {
-    Partner.findById(req.params.partnerId)
-    .then(partner => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(partner);
+
+partnerRouter.route('/:partnerId') 
+    .get((req, res, next) => { // get request that is getting all partners with an id matching the requested id
+        Partner.findById(req.params.partnerId)
+        .then(partner => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(partner);
+        })
+        .catch(err => next(err));
     })
-    .catch(err => next(err));
-})
-.post((req, res) => {
-    res.statusCode = 403;
-    res.end(`POST operation not supported on /campsites/${req.params.partnerId}`);
-})
-.put((req, res, next) => {
-    Partner.findByIdAndUpdate(req.params.partnerId, {
-        $set: req.body
-    }, { new: true })
-    .then(partner => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(partner);
+    .post((req, res) => { // post request that is not supported
+        res.statusCode = 403;
+        res.end(`POST operation not supported on /partners/${req.params.partnerId}`); 
     })
-    .catch(err => next(err));
-})
-.delete((req, res, next) => {
-    Partner.findByIdAndDelete(req.params.partnerId)
-    .then(response => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(response);
+    .put((req, res, next) => { // put request that is updating any partners that have an id matching the id requested
+        Partner.findByIdAndUpdate(req.params.partnerId, {
+            $set: req.body
+        }, { new: true })
+        .then(partner => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(partner); 
+        })
+        .catch(err => next(err)); 
     })
-    .catch(err => next(err));
-});
+    .delete((req, res, next) => { // delete request that is deleting any partners that have an id matching the id requested
+        Partner.findByIdAndDelete(req.params.partnerId)
+        .then(response => {
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            res.json(response);
+        })
+        .catch(err => next(err)); 
+    })
 
 module.exports = partnerRouter;
