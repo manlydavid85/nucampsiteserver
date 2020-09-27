@@ -1,6 +1,7 @@
 const express = require('express'); // using express middleware
 const bodyParser = require('body-parser'); // using body-parser middleware
 const Promotion = require('../models/promotion');  // using Promotion model
+const authenticate = require('../authenticate');
 
 
 const promotionRouter = express.Router(); 
@@ -17,7 +18,7 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .post((req, res, next) => { // creating a new document in the promotion collection
+    .post(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => { // creating a new document in the promotion collection
         Promotion.create(req.body)
         .then(promotion => {
             console.log('Promotion Created ', promotion);
@@ -27,11 +28,11 @@ promotionRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put((req, res) => { // put request that is not supported
+    .put(authenticate.verifyUser,authenticate.verifyAdmin,(req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /promotions');
     })
-    .delete((req, res, next) => { // delete request that is deleting any documents in the promotion collection
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => { // delete request that is deleting any documents in the promotion collection
         Promotion.deleteMany()
         .then(response => {
             res.statusCode = 200;

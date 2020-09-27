@@ -20,7 +20,7 @@ campsiteRouter.route('/')
     })
     .catch(err => next(err));
 })
-    .post(authenticate.verifyUser, (req, res, next) => { // creating a new document in the campsite collection
+    .post(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next) => { // creating a new document in the campsite collection
         Campsite.create(req.body)
         .then(campsite => {
             console.log('Campsite Created ', campsite);
@@ -30,11 +30,11 @@ campsiteRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .put(authenticate.verifyUser, (req, res) => { // put request that is not supported
+    .put(authenticate.verifyUser,authenticate.verifyAdmin, (req, res) => { // put request that is not supported
         res.statusCode = 403;
         res.end('PUT operation not supported on /campsites');
     })
-    .delete(authenticate.verifyUser, (req, res, next)  => { // delete request that is deleting any documents in the campsite collection
+    .delete(authenticate.verifyUser, authenticate.verifyAdmin,(req, res, next)  => { // delete request that is deleting any documents in the campsite collection
         Campsite.deleteMany()
         .then(response => {
             res.statusCode = 200;
@@ -56,11 +56,11 @@ campsiteRouter.route('/')
      })
      .catch(err => next(err));
  })
-    .post(authenticate.verifyUser, (req, res) => { // post request that is not supported
+    .post(authenticate.verifyUser,authenticate.verifyAdmin, (req, res) => { // post request that is not supported
         res.statusCode = 403;
         res.end(`POST operation not supported on /campsites/${req.params.campsiteId}`); 
     })
-    .put(authenticate.verifyUser, (req, res) => { // put request that is updating any campsites that have an id matching the id requested
+    .put(authenticate.verifyUser,authenticate.verifyAdmin, (req, res) => { // put request that is updating any campsites that have an id matching the id requested
         Campsite.findByIdAndUpdate(req.params.campsiteId, {
             $set: req.body
         }, { new: true })
@@ -71,7 +71,7 @@ campsiteRouter.route('/')
         })
         .catch(err => next(err)); 
     })
-    .delete(authenticate.verifyUser, (req, res, next)=> { // delete request that is deleting any campsites that have an id matching the id requested
+    .delete(authenticate.verifyUser,authenticate.verifyAdmin, (req, res, next)=> { // delete request that is deleting any campsites that have an id matching the id requested
         Campsite.findByIdAndDelete(req.params.campsiteId)
         .then(response => {
             res.statusCode = 200;
@@ -98,7 +98,6 @@ campsiteRouter.route('/:campsiteId/comments')
     })
     .catch(err => next(err));
 })
-
 .post(authenticate.verifyUser, (req, res, next) => {// post request that is creating a new comment that is added to the campsite matching the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {

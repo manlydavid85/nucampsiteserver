@@ -1,6 +1,8 @@
 const mongoose = require('mongoose');
-const passportLocalMongoose = require('passport-local-mongoose');
 const Schema = mongoose.Schema;
+//this auto adds username and password tote schema
+const passportLocalMongoose = require('passport-local-mongoose');
+
 
 
 
