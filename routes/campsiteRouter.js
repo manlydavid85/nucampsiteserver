@@ -175,19 +175,27 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
-            if (req.body.rating) {
-                campsite.comments.id(req.params.commentId).rating = req.body.rating; 
+            if(req.user._id.equals( campsite.comments.id(req.params.commentId).author._id)){
+                //User who did the put is the one that created the comment proceed
+                if (req.body.rating) {
+                    campsite.comments.id(req.params.commentId).rating = req.body.rating; 
+                }
+                if (req.body.text) {
+                    campsite.comments.id(req.params.commentId).text = req.body.text;
+                }
+                campsite.save()
+                .then(campsite => {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(campsite); 
+                })
+                .catch(err => next(err));
+            } else{
+                err = new Error(`Campsite ${req.params.campsiteId} this user did not create the comment`);
+                err.status = 403;
+                return next(err);
             }
-            if (req.body.text) {
-                campsite.comments.id(req.params.commentId).text = req.body.text;
-            }
-            campsite.save()
-            .then(campsite => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(campsite); 
-            })
-            .catch(err => next(err));
+           
         } else if (!campsite) {
             err = new Error(`Campsite ${req.params.campsiteId} not found`);
             err.status = 404;
@@ -200,18 +208,27 @@ campsiteRouter.route('/:campsiteId/comments/:commentId')
     })
     .catch(err => next(err)); 
 })
+
 .delete(authenticate.verifyUser, (req, res, next) => { // delete request that is deleting the comment with an id matching the id requested that belongs to the comment with the id being requested
     Campsite.findById(req.params.campsiteId)
     .then(campsite => {
         if (campsite && campsite.comments.id(req.params.commentId)) {
-            campsite.comments.id(req.params.commentId).remove();
-            campsite.save()
-            .then(campsite => {
-                res.statusCode = 200;
-                res.setHeader('Content-Type', 'application/json');
-                res.json(campsite); 
-            })
-            .catch(err => next(err)); 
+            if(req.user._id.equals( campsite.comments.id(req.params.commentId).author._id)){
+                campsite.comments.id(req.params.commentId).remove();
+                campsite.save()
+                .then(campsite => {
+                    res.statusCode = 200;
+                    res.setHeader('Content-Type', 'application/json');
+                    res.json(campsite); 
+                })
+                .catch(err => next(err)); 
+            }else{
+                err = new Error(`Campsite ${req.params.campsiteId} this user did not create the comment`);
+                err.status = 403;
+                return next(err);
+            }
+     
+        
         } else if (!campsite) {
             err = new Error(`Campsite ${req.params.campsiteId} not found`);
             err.status = 404;
