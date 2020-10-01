@@ -8,7 +8,7 @@ const session = require('express-session');
 const passport = require('passport');
 const config = require('./config');
 const uploadRouter = require('./routes/uploadRouter');
-
+const favoriteRouter = require('./routes/favoriteRouter');
 
 function auth(req, res, next) {
   console.log(req.user);
@@ -80,6 +80,7 @@ app.use('/users', usersRouter);
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
+app.use('/favorite', favoriteRouter);
 app.use('/imageUpload', uploadRouter);
 
 // cath 404 and forward to error handler
