@@ -19,11 +19,6 @@ campsites: [
 }
 );
    
- 
-  
-
-
-
 
 
 const Favorite = mongoose.model('Favorite', favoriteSchema);
